@@ -1,0 +1,45 @@
+library identifier: '<REPOSITORY_OF_JENKINS_SHARED_LIBRARY@BRANCH>', retriever: modernSCM([$class: 'GitSCMSource', remote: '<URL_OF_GITH_OF_JENKINS_SHARED_LIBRARY>', credentialsId: '<CREDENTIAL_ID_ON_JENKINS>'])
+
+pipeline {
+	agent any
+	// Tools
+	maven {
+		maven "Maven" // It should be configured on the Jenkins
+	}
+	// Environment
+	environment {
+		IMAGE_NAME = "<NAME_OF_IMAGE>" // Basically here should be put the name of repository of Docker Hub
+	}
+
+	stages {
+		stage("Build Jar") {
+			steps {
+				script {
+					buildJar()
+				}
+			}
+		} // end Build Jar
+
+		stage("Docker Login, Build and Push") {
+			steps {
+				script {
+					dockerLogin()
+					buildDockerImage("${IMAGE_NAME}")
+					dockerPush("${IMAGE_NAME}")
+				}
+			}
+		} // end Docker Login, Build and Push
+
+		stage("Deployment") {
+			steps {
+				script {
+					sh "echo 'Deployment'"
+				}
+			}
+		} // end Deployment
+
+
+	} // end stages
+
+
+} // end pipeline
